@@ -63,7 +63,7 @@ SYSCALL_DEFINE3(ptree, struct prinfo __user *, buf, int __user *, nr, int, pid)
 	result_copy = copy_from_user(&buffer_length, nr, sizeof(int));
 	if (!result_copy) 
 	{
-		pr_error("kernel/ptree.c copy from user failed");
+		pr_err("kernel/ptree.c copy from user failed");
 		
 		return -EFAULT;
 	}
@@ -71,7 +71,7 @@ SYSCALL_DEFINE3(ptree, struct prinfo __user *, buf, int __user *, nr, int, pid)
 	process_tree_data = (struct prinfo *)kmalloc(buffer_length * sizeof(struct prinfo), GFP_KERNEL);
 	if (!process_tree_data)
 	{
-		pr_error("kernel/ptree.c process_tree_data malloc failed");
+		pr_err("kernel/ptree.c process_tree_data malloc failed");
 
 		return -EFAULT;
 	}
@@ -80,7 +80,7 @@ SYSCALL_DEFINE3(ptree, struct prinfo __user *, buf, int __user *, nr, int, pid)
 	if (!global_ptree_func)
 	{
 		spin_unlock(&global_ptree_func_lock);
-		pr_error("kernel/ptree.c Function pointer does not exists");
+		pr_err("kernel/ptree.c Function pointer does not exists");
 		
 		return -EFAULT;
 	}
@@ -91,7 +91,7 @@ SYSCALL_DEFINE3(ptree, struct prinfo __user *, buf, int __user *, nr, int, pid)
 
 	if (return_value != SUCCESS)
 	{
-		 pr_error("kernel/ptree.c ptree function failed");
+		 pr_err("kernel/ptree.c ptree function failed");
 
 		 return return_value;
 	}
@@ -99,7 +99,7 @@ SYSCALL_DEFINE3(ptree, struct prinfo __user *, buf, int __user *, nr, int, pid)
 	result_copy = copy_to_user(buf, process_tree_data, buffer_length * sizeof(struct prinfo));
 	if (!result_copy) 
 	{
-		pr_error("kernel/ptree.c copy to user failed");
+		pr_err("kernel/ptree.c copy to user failed");
 
                 return -EFAULT;
 	}
@@ -108,7 +108,7 @@ SYSCALL_DEFINE3(ptree, struct prinfo __user *, buf, int __user *, nr, int, pid)
 	result_copy = copy_to_user(nr, &buffer_length, sizeof(int));
         if (!result_copy)
         {
-                pr_error("kernel/ptree.c copy to user failed");
+                pr_err("kernel/ptree.c copy to user failed");
 
 		return -EFAULT;
         }
