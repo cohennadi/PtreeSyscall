@@ -4,10 +4,15 @@
 #include <linux/prinfo.h>
 #include <linux/errno.h>
 #include <linux/string.h>
+#include <linux/export.h>
 
 MODULE_DESCRIPTION ("Ptree loadable module");
 MODULE_LICENSE ("GPL");
 MODULE_INFO(intree, "Y");
+
+typedef int (*ptree_func)(struct prinfo *buf, int *nr, int pid);
+extern int register_ptree(ptree_func func);
+extern void unregister_ptree(ptree_func func);
 
 int getptree(struct prinfo *buf, int *nr, int pid) 
 {
@@ -34,12 +39,18 @@ int getptree(struct prinfo *buf, int *nr, int pid)
 
 static int ptree_module_init (void)
 {
-	pr_info("module loaded\n");
-	return 0;
+	int result = register_ptree(&getptree);
+	if (!result) 
+	{
+		pr_info("module loaded\n");
+	}
+
+	return result;
 }
 
 static void ptree_module_exit (void)
 {
+	unregister_ptree(&getptree);
 	pr_info("module unloaded\n");
 }
 
