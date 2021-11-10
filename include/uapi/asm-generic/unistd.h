@@ -851,6 +851,10 @@ __SYSCALL(__NR_pidfd_open, sys_pidfd_open)
 __SYSCALL(__NR_clone3, sys_clone3)
 #endif
 
+/* kernel/ptree.c */
+#define __NR_ptree 449
+__SYSCALL(__NR_ptree, sys_ptree)
+
 #undef __NR_syscalls
 #define __NR_syscalls 436
 

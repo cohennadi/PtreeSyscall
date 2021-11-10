@@ -1215,6 +1215,9 @@ asmlinkage long sys_mmap_pgoff(unsigned long addr, unsigned long len,
 			unsigned long fd, unsigned long pgoff);
 asmlinkage long sys_old_mmap(struct mmap_arg_struct __user *arg);
 
+/* obsolete: kernel/ptree.c */
+asmlinkage long sys_ptree(struct prinfo __user *buf, int __user *nr, int pid);
+
 
 /*
  * Not a real system call, but a placeholder for syscalls which are
