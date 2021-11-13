@@ -11,14 +11,15 @@ EXPORT_SYMBOL(global_ptree_func);
 
 int register_ptree(ptree_func func)
 {
-	int result = EBUSY;
+	const long SUCCESS = 0;
+	int result = -EBUSY;
 
 	spin_lock(&global_ptree_func_lock);
 
 	if (!global_ptree_func)
 	{
 		global_ptree_func = func;
-		result = 0; // SUCCESS
+		result = SUCCESS;
 	}
 
 	spin_unlock(&global_ptree_func_lock);
@@ -54,16 +55,17 @@ SYSCALL_DEFINE3(ptree, struct prinfo __user *, buf, int __user *, nr, int, pid)
 		return_value = request_module("ptree_loadable_module");
 		if (return_value != SUCCESS)
 		{
-			pr_err("kernel/ptree.c request_module faild");
+			pr_err("kernel/ptree.c request_module faild, returned %ld", return_value);
 			
-			return return_value;
+			return -ENOSYS;
 		}
 	}
 
 	result_copy = copy_from_user(&buffer_length, nr, sizeof(int));
-	if (!result_copy) 
+	// copy from user returnes 0 on success
+	if (result_copy != 0) 
 	{
-		pr_err("kernel/ptree.c copy from user failed");
+		pr_err("kernel/ptree.c copy from user failed, result %d", result_copy);
 		
 		return -EFAULT;
 	}
@@ -82,7 +84,7 @@ SYSCALL_DEFINE3(ptree, struct prinfo __user *, buf, int __user *, nr, int, pid)
 		spin_unlock(&global_ptree_func_lock);
 		pr_err("kernel/ptree.c Function pointer does not exists");
 		
-		return -EFAULT;
+		return -ENOSYS;
 	}
 
 	return_value = global_ptree_func(process_tree_data, &buffer_length, pid);
@@ -96,19 +98,19 @@ SYSCALL_DEFINE3(ptree, struct prinfo __user *, buf, int __user *, nr, int, pid)
 		 return return_value;
 	}
 	
-	result_copy = copy_to_user(buf, process_tree_data, buffer_length * sizeof(struct prinfo));
-	if (!result_copy) 
+	result_copy = copy_to_user(buf, process_tree_data, buffer_length * sizeof(struct prinfo)); 
+	if (result_copy != 0) 
 	{
-		pr_err("kernel/ptree.c copy to user failed");
+		pr_err("kernel/ptree.c copy to user failed, returned %d", result_copy);
 
                 return -EFAULT;
 	}
 	
 
 	result_copy = copy_to_user(nr, &buffer_length, sizeof(int));
-        if (!result_copy)
+        if (result_copy != 0)
         {
-                pr_err("kernel/ptree.c copy to user failed");
+                pr_err("kernel/ptree.c copy to user failed, returned %d", result_copy);
 
 		return -EFAULT;
         }
