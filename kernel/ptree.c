@@ -62,7 +62,6 @@ SYSCALL_DEFINE3(ptree, struct prinfo __user *, buf, int __user *, nr, int, pid)
 	}
 
 	result_copy = copy_from_user(&buffer_length, nr, sizeof(int));
-	// copy from user returnes 0 on success
 	if (result_copy != 0) 
 	{
 		pr_err("kernel/ptree.c copy from user failed, result %d", result_copy);
