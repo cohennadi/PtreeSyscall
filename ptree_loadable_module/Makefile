@@ -1,12 +1,13 @@
 CONFIG_MODULE_SIG=n
 
 KDIR ?= ..
+MODULES_EXTRA ?= /lib/modules/5.4.0-custom+/extra
 
 kbuild:
 	make -C $(KDIR) M=`pwd` modules
-	mkdir -p /lib/modules/5.4.0-custom+/extra
-	rm -f /lib/modules/5.4.0-custom+/extra/ptree_loadable_module.ko
-	cp /data/ubuntu/linux/ptree_loadable_module/ptree_loadable_module.ko /lib/modules/5.4.0-custom+/extra/
+	mkdir -p $(MODULES_EXTRA)
+	rm -f $(MODULES_EXTRA)/ptree_loadable_module.ko
+	cp ptree_loadable_module.ko $(MODULES_EXTRA)
 	depmod
 	modprobe -r ptree_loadable_module
 clean:

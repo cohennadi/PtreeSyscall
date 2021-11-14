@@ -93,7 +93,7 @@ int getptree(struct prinfo *buf, int *nr, int pid)
 	extract_task_data_to_prinfo_tree(task, buf, 0);
 	current_index++;
 
-	while (current_parent < current_index)
+	while (current_parent < current_index && current_index < *nr)
 	{
 		result = extract_children(buf[current_parent].pid, buf[current_parent].level + 1, buf, &current_index, *nr);
 		if (result != SUCCESS)

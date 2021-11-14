@@ -5,7 +5,7 @@
 #include <string.h>
 
 #define PTREE_SYSCALL_NUM 449
-#define DEFAULT_SIZE 10
+#define DEFAULT_SIZE 3
 #define SUCCESS 0
 #define FAIL -1
 #define PID_INDEX 1
@@ -24,17 +24,16 @@ struct prinfo {
 int main(int argc, char **argv)
 {
 	int ptree_data_length = 0;
+	int original_length = 0;
 	struct prinfo *ptree_data;
 	long result = 0;
 	int i = 0;
 	int pid = 1;
+	int should_continue = 0;
 
-	printf("arc %d\n", argc);
 	if (argc == ARGS_TOTAL)
 	{
-		printf("pid as srtingn %s\n", argv[PID_INDEX]);
 		pid = strtol(argv[PID_INDEX], NULL, 10);
-		printf("pid as int %d\n", pid);	
 	}
 
 	ptree_data= (struct prinfo *)malloc(DEFAULT_SIZE * sizeof(struct prinfo));
@@ -43,27 +42,34 @@ int main(int argc, char **argv)
 		return FAIL;	
 	}
 
-	ptree_data_length = DEFAULT_SIZE;
-	//result = SUCCESS;
-	//do {
-	//	if (result != SUCCESS)
-	//	{
-	//		free(ptree_data);
-	//		ptree_data_length = ptree_data_length * 2;
-	//		ptree_data= (struct prinfo *)malloc(ptree_data_length * sizeof(struct prinfo));
-	//		if (!ptree_data)
-	//		{
-	//			return FAIL;
-	//		}
-	//	}
-	//	
-	//	printf("before calling syscall\n");
-	//	result = syscall(PTREE_SYSCALL_NUM, ptree_data, &ptree_data_length);
-	//	printf("after calliing syscall, retured %ld\n", result);
-	//} while(result != SUCCESS);
+	ptree_data_length = original_length = DEFAULT_SIZE;
+	do {
+		original_length = ptree_data_length;
+		result = syscall(PTREE_SYSCALL_NUM, ptree_data, &ptree_data_length, pid);
+		if (result != SUCCESS)
+		{
+			printf("syscall failed %ld\n", result);
 
-	result = syscall(PTREE_SYSCALL_NUM, ptree_data, &ptree_data_length, pid);
-	printf("after calliing syscall, retured %ld, data length\n", result);
+			return FAIL;
+		}
+
+		if (ptree_data_length == original_length)
+		{
+			free(ptree_data);
+			ptree_data_length = original_length * 2;
+			ptree_data= (struct prinfo *)malloc(ptree_data_length * sizeof(struct prinfo));
+			if (!ptree_data)
+			{
+				return FAIL;
+			}
+			
+			should_continue = 1;
+		} 
+		else
+		{
+			should_continue = 0;
+		}
+	} while(should_continue);
 
 	for (int i = 0; i < ptree_data_length; ++i)
 	{
