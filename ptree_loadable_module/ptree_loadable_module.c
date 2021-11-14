@@ -34,18 +34,21 @@ int extract_children(int parent_pid, int level, struct prinfo *ptree_data, int* 
 {
 	struct task_struct *parent_task = NULL;
 	struct task_struct *current_child = NULL;
+	int result = SUCCESS;
 
 	if (!ptree_data || !io_current_index || *io_current_index >= buffer_length)
 	{
 		return ERROR;
 	}
 
+	rcu_read_lock();
 	parent_task = get_pid_task(find_get_pid(parent_pid),PIDTYPE_PID);
 	if (!parent_task)
 	{
 		pr_err("ptree_loadable_module.c get_pid_task failed, parent pid %d",parent_pid);
 
-	        return ERROR;
+	        result = ERROR;
+		goto extract_finish;
         }
 
 	list_for_each_entry(current_child, &parent_task->children, sibling)
@@ -60,8 +63,9 @@ int extract_children(int parent_pid, int level, struct prinfo *ptree_data, int* 
 	}
 
 extract_finish:	
+	rcu_read_unlock();
 
-	return SUCCESS;
+	return result;
 }
 
 int getptree(struct prinfo *buf, int *nr, int pid) 
