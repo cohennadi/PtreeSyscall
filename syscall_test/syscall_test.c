@@ -2,11 +2,14 @@
 #include <sys/syscall.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define PTREE_SYSCALL_NUM 449
 #define DEFAULT_SIZE 10
 #define SUCCESS 0
 #define FAIL -1
+#define PID_INDEX 1
+#define ARGS_TOTAL 2
 
 struct prinfo {
 	        pid_t parent_pid;       /* process id of parent */
@@ -24,6 +27,15 @@ int main(int argc, char **argv)
 	struct prinfo *ptree_data;
 	long result = 0;
 	int i = 0;
+	int pid = 1;
+
+	printf("arc %d\n", argc);
+	if (argc == ARGS_TOTAL)
+	{
+		printf("pid as srtingn %s\n", argv[PID_INDEX]);
+		pid = strtol(argv[PID_INDEX], NULL, 10);
+		printf("pid as int %d\n", pid);	
+	}
 
 	ptree_data= (struct prinfo *)malloc(DEFAULT_SIZE * sizeof(struct prinfo));
 	if (!ptree_data)
@@ -50,10 +62,8 @@ int main(int argc, char **argv)
 	//	printf("after calliing syscall, retured %ld\n", result);
 	//} while(result != SUCCESS);
 
-	result = syscall(PTREE_SYSCALL_NUM, ptree_data, &ptree_data_length, 0);
+	result = syscall(PTREE_SYSCALL_NUM, ptree_data, &ptree_data_length, pid);
 	printf("after calliing syscall, retured %ld, data length\n", result);
-
-
 
 	for (int i = 0; i < ptree_data_length; ++i)
 	{
