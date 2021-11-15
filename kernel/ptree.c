@@ -4,6 +4,7 @@
 #include <linux/errno.h>
 #include <linux/spinlock.h>
 #include <linux/printk.h>
+#include <linux/uaccess.h>
 
 DEFINE_SPINLOCK(global_ptree_func_lock);
 ptree_func global_ptree_func = NULL;
@@ -61,11 +62,21 @@ SYSCALL_DEFINE3(ptree, struct prinfo __user *, buf, int __user *, nr, int, pid)
 		}
 	}
 
+	if (!access_ok(nr, sizeof(int)))
+	{
+		return -EFAULT;
+	}
+
 	result_copy = copy_from_user(&buffer_length, nr, sizeof(int));
 	if (result_copy != 0) 
 	{
 		pr_err("kernel/ptree.c copy from user failed, result %d", result_copy);
 		
+		return -EFAULT;
+	}
+
+	if (!access_ok(buf, sizeof(struct prinfo) * buffer_length))
+	{
 		return -EFAULT;
 	}
 
