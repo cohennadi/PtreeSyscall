@@ -1,0 +1,2 @@
+_CFLAGS = -Wall -g
+obj-m	= mapspages_loadable_module.o
