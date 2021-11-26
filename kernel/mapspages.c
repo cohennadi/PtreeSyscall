@@ -43,7 +43,7 @@ void unregister_mapspages(mapspages_func func)
 }
 EXPORT_SYMBOL(unregister_mapspages);
 
-SYSCALL_DEFINE4(mapspages, unsigned long start, unsigned long end, char __user *buf, size_t size)
+SYSCALL_DEFINE4(mapspages, unsigned long, start, unsigned long, end, char __user *, buf, size_t, size)
 {
 	const long SUCCESS = 0;
 	long return_value = SUCCESS; 
@@ -88,7 +88,7 @@ SYSCALL_DEFINE4(mapspages, unsigned long start, unsigned long end, char __user *
 
 	spin_unlock(&global_mapspages_func_lock);
 
-	if (bytes_copied <= 0)
+	if (bytes_copied < 0)
 	{
 		 pr_err("kernel/mapspages.c mapspages function failed");
 
