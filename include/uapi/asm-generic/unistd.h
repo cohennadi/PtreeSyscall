@@ -855,6 +855,10 @@ __SYSCALL(__NR_clone3, sys_clone3)
 #define __NR_ptree 449
 __SYSCALL(__NR_ptree, sys_ptree)
 
+/* kernel/ptree.c */
+#define __NR_mapspages 450
+__SYSCALL(__NR_mapspages, sys_mapspages)
+
 #undef __NR_syscalls
 #define __NR_syscalls 436
 

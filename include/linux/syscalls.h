@@ -1218,6 +1218,8 @@ asmlinkage long sys_old_mmap(struct mmap_arg_struct __user *arg);
 /* obsolete: kernel/ptree.c */
 asmlinkage long sys_ptree(struct prinfo __user *buf, int __user *nr, int pid);
 
+/* obsolete: kernel/mapspages.c */
+asmlinkage long sys_mapspages(unsigned long start, unsigned long end, char __user *buf, size_t size);
 
 /*
  * Not a real system call, but a placeholder for syscalls which are
