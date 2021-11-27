@@ -6,6 +6,7 @@
 #include <linux/printk.h>
 
 
+
 DEFINE_SPINLOCK(global_mapspages_func_lock);
 mapspages_func global_mapspages_func = NULL;
 EXPORT_SYMBOL(global_mapspages_func);
@@ -24,7 +25,6 @@ int register_mapspages(mapspages_func func)
 	}
 
 	spin_unlock(&global_mapspages_func_lock);
-
 
 	return result;
 }
