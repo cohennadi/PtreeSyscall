@@ -103,5 +103,7 @@ SYSCALL_DEFINE4(mapspages, unsigned long, start, unsigned long, end, char __user
         return -EFAULT;
 	}
 
+	kfree(mapspages_result_buf);
+
 	return bytes_copied;
 }

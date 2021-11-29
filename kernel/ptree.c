@@ -125,5 +125,7 @@ SYSCALL_DEFINE3(ptree, struct prinfo __user *, buf, int __user *, nr, int, pid)
 		return -EFAULT;
         }
 
+	kfree(process_tree_data);
+
 	return return_value;
 }
