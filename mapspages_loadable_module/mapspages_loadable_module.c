@@ -12,6 +12,7 @@
 #include <asm/current.h>
 #include <linux/mapspages.h>
 #include <linux/slab.h>
+#include <asm/page.h>
 
 #define SUCCESS 0
 #define ERROR -1
@@ -21,6 +22,8 @@
 #define SHARED_INDEX 3
 #define PERMISSIONS_LEN SHARED_INDEX + 1
 #define DEVICE_LEN 6
+
+#define CEIL(a, b)     (((a) + (b-1)) / (b))
 
 
 MODULE_DESCRIPTION ("Mapspages loadable module");
@@ -33,6 +36,7 @@ extern void unregister_mapspages(mapspages_func func);
 struct vma_counter
 {
 	size_t count_vma;
+	//size_t count_pages;
 	size_t max_pages;
 };
 
@@ -151,7 +155,7 @@ int pte_entry_callback(pte_t *pte, unsigned long addr, unsigned long next, struc
 			*current_refcount_index, 
 			refcount_max_size);
 
-		return ERROR; 
+		return 1; 
 	}
 
 	current_page = pte_page(*pte);
@@ -167,10 +171,11 @@ int pte_entry_callback(pte_t *pte, unsigned long addr, unsigned long next, struc
 int count_callback(unsigned long addr, unsigned long next, struct mm_walk *walk)
 {
 	struct vma_counter *counters = (struct vma_counter*)walk->private;
-	size_t total_pages = (next - addr) / PAGE_SIZE;
+	size_t total_pages = CEIL((next - addr), PAGE_SIZE);
+	
 	counters->count_vma++;
 
-	if (counters->max_pages < total_pages)
+	if (total_pages > counters->max_pages)
 	{
 		counters->max_pages = total_pages;	
 	}
@@ -223,10 +228,10 @@ int get_counters(unsigned long start, unsigned long end, struct vma_counter *cou
 	{
 		pr_err("%s: down_read_killable failed with result %d\n", __FILE__, locking_result);
 
-		return ERROR;
+		return ERROR
 	}
 
-	walk_page_range_result = walk_page_range(current->mm, start, end, &mapspages_operations, &counters); 
+	walk_page_range_result = walk_page_range(current->mm, start, end, &mapspages_operations, counters); 
 	if (walk_page_range_result != SUCCESS)
 	{
 		pr_err("%s: walk_page_range failed with result %d\n", __FILE__, walk_page_range_result);
@@ -306,7 +311,7 @@ int get_mapspages(unsigned long start, unsigned long end, char *buf, size_t size
         	.pte_entry = pte_entry_callback,
         	.test_walk = check_vma_callback
     	};
-
+    	
     	init_result = init_memory_range_descriptor(start, end, &memory_desc);
     	if (init_result != SUCCESS)
     	{
