@@ -192,15 +192,15 @@ int write_buf_report(struct memory_range_descriptor* reports, char *buf, size_t 
 	for (index = 0; index < reports->vma_descriptors_size; ++index)
 	{
 		written_bytes = snprintf(buf,
-                 	 		   size,
-                 	 		   "%lx-%lx %s %lx %s %lx %s\n",
-                 	 		   reports->vma_descriptors[index].start,
-                 	 		   reports->vma_descriptors[index].end,
-                 	 		   reports->vma_descriptors[index].permissions,
-                 	 		   reports->vma_descriptors[index].offest, 
-                 	 		   reports->vma_descriptors[index].device,
-                 	 		   reports->vma_descriptors[index].inode,
-                 	 		   reports->vma_descriptors[index].pages_data.refcount_representations);
+                 	 		 size,
+                 	 		 "%lx-%lx %s %lx %s %lx %s\n",
+                 	 		 reports->vma_descriptors[index].start,
+                 	 		 reports->vma_descriptors[index].end,
+                 	 		 reports->vma_descriptors[index].permissions,
+                 	 		 reports->vma_descriptors[index].offest, 
+                 	 		 reports->vma_descriptors[index].device,
+                 	 		 reports->vma_descriptors[index].inode,
+                 	 		 reports->vma_descriptors[index].pages_data.refcount_representations);
 
 		if (written_bytes < 0)
 		{
@@ -228,7 +228,7 @@ int get_counters(unsigned long start, unsigned long end, struct vma_counter *cou
 	{
 		pr_err("%s: down_read_killable failed with result %d\n", __FILE__, locking_result);
 
-		return ERROR
+		return ERROR;
 	}
 
 	walk_page_range_result = walk_page_range(current->mm, start, end, &mapspages_operations, counters); 
@@ -239,7 +239,6 @@ int get_counters(unsigned long start, unsigned long end, struct vma_counter *cou
 		return ERROR;
 	}
 
-	// release a read lock.
 	up_read(&current->mm->mmap_sem);
 
 	return SUCCESS;
@@ -311,6 +310,9 @@ int get_mapspages(unsigned long start, unsigned long end, char *buf, size_t size
         	.pte_entry = pte_entry_callback,
         	.test_walk = check_vma_callback
     	};
+
+    	// end address is rounded up to the next multiple of PAGE_SIZE.
+    	end = ((PAGE_SIZE - 1) & end) ? ((end + PAGE_SIZE) & ~(PAGE_SIZE - 1)) : end;
     	
     	init_result = init_memory_range_descriptor(start, end, &memory_desc);
     	if (init_result != SUCCESS)
