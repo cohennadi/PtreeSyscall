@@ -135,7 +135,7 @@ char page_refcount_char_representation(int page_refcount)
 		return 'X'; 
 	}
 
-	return page_refcount + '0';
+	return (page_refcount - 1) + '0';
 }
 
 int pte_entry_callback(pte_t *pte, unsigned long addr, unsigned long next, struct mm_walk *walk)
